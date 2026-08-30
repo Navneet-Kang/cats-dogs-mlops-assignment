@@ -1,0 +1,6 @@
+outs:
+  - md5: REPLACED_BY_DVC_ADD
+    size: 0
+    hash: md5
+    path: raw
+

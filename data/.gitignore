@@ -1,0 +1,5 @@
+raw/
+processed/
+monitoring/
+!raw.dvc
+

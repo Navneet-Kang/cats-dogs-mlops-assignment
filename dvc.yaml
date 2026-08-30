@@ -1,0 +1,36 @@
+stages:
+  prepare:
+    cmd: python -m src.catsdogs.prepare --params params.yaml
+    deps:
+      - data/raw
+      - src/catsdogs/data.py
+      - src/catsdogs/prepare.py
+      - params.yaml
+    params:
+      - data
+    outs:
+      - data/processed/manifest.csv
+  train:
+    cmd: python -m src.catsdogs.train --params params.yaml --manifest data/processed/manifest.csv
+    deps:
+      - data/processed/manifest.csv
+      - src/catsdogs/features.py
+      - src/catsdogs/model.py
+      - src/catsdogs/train.py
+      - params.yaml
+    params:
+      - data.image_size
+      - data.feature_size
+      - data.seed
+      - model
+    outs:
+      - models/cats_dogs_sgd.joblib
+    metrics:
+      - artifacts/metrics.json:
+          cache: false
+    plots:
+      - artifacts/history.csv:
+          x: epoch
+          y: val_log_loss
+          cache: false
+
