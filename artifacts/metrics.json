@@ -1,0 +1,8 @@
+{
+  "test_accuracy": 0.503,
+  "test_f1": 0.03868471953578337,
+  "test_log_loss": 16.52782238651648,
+  "train_samples": 8000,
+  "val_samples": 1000,
+  "test_samples": 1000
+}
