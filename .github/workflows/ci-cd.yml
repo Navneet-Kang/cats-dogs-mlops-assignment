@@ -66,24 +66,24 @@ jobs:
 
       - name: Pull and deploy immutable image
         env:
-          IMAGE_TAG: ${{ github.sha }}
+          IMAGE_NAME: ${{ env.IMAGE }}:${{ github.sha }}
         run: |
           docker compose pull api
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           docker compose up -d --no-build --remove-orphans
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          
+
       - name: Wait for health
         shell: powershell
         run: |
           $healthy = $false
-      
+
           for ($i = 1; $i -le 30; $i++) {
             try {
               $null = Invoke-RestMethod `
                 -Uri "http://localhost:8001/health" `
                 -TimeoutSec 5
-      
+
               $healthy = $true
               break
             }
@@ -92,7 +92,7 @@ jobs:
               Start-Sleep -Seconds 2
             }
           }
-      
+
           if (-not $healthy) {
             throw "Deployment health check failed"
           }
