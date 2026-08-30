@@ -68,9 +68,9 @@ jobs:
         env:
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          IMAGE_TAG=${{ github.sha }} docker compose pull
-          IMAGE_TAG=${{ github.sha }} docker compose up -d --remove-orphans
-
+          docker compose pull
+          docker compose up -d --remove-orphans
+          
       - name: Wait for health
         run: |
           for i in $(seq 1 30); do
