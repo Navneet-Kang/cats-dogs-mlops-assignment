@@ -45,22 +45,41 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: test-and-build
     runs-on: [self-hosted, cats-dogs-deploy]
+    permissions:
+      contents: read
+      packages: read
     environment: production
     steps:
       - uses: actions/checkout@v4
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Pull and deploy immutable image
         env:
           IMAGE_NAME: ${{ env.IMAGE }}:${{ github.sha }}
         run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
           docker compose pull
           docker compose up -d --remove-orphans
       - name: Wait for health
+        shell: pwsh
         run: |
-          for i in $(seq 1 30); do
-            curl -fsS http://localhost:8000/health && break
-            test "$i" -lt 30
-            sleep 2
-          done
+          $healthy = $false
+          for ($i = 1; $i -le 30; $i++) {
+            try {
+              Invoke-RestMethod http://localhost:8001/health
+              $healthy = $true
+              break
+            }
+            catch {
+              Start-Sleep -Seconds 2
+            }
+          }
+          if (-not $healthy) {
+            throw "Deployment health check failed"
+          }
       - name: Post-deploy smoke test
+      
         run: python scripts/smoke_test.py --url http://localhost:8000 --image tests/fixtures/smoke.ppm
