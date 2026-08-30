@@ -18,19 +18,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
           cache: pip
+
       - run: pip install -r requirements-dev.txt
       - run: pytest -q --cov=src --cov-report=term-missing
+
       - uses: docker/setup-buildx-action@v3
+
       - uses: docker/login-action@v3
         if: github.event_name == 'push'
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
       - uses: docker/build-push-action@v6
         with:
           context: .
@@ -51,35 +56,34 @@ jobs:
     environment: production
     steps:
       - uses: actions/checkout@v4
+
       - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Pull and deploy immutable image
         env:
-          IMAGE_NAME: ${{ env.IMAGE }}:${{ github.sha }}
+          IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker compose pull
-          docker compose up -d --remove-orphans
+          IMAGE_TAG=${{ github.sha }} docker compose pull
+          IMAGE_TAG=${{ github.sha }} docker compose up -d --remove-orphans
+
       - name: Wait for health
-        shell: pwsh
         run: |
-          $healthy = $false
-          for ($i = 1; $i -le 30; $i++) {
-            try {
-              Invoke-RestMethod http://localhost:8001/health
-              $healthy = $true
-              break
-            }
-            catch {
-              Start-Sleep -Seconds 2
-            }
-          }
-          if (-not $healthy) {
-            throw "Deployment health check failed"
-          }
+          for i in $(seq 1 30); do
+            if curl -s -f http://localhost:8001/health > /dev/null; then
+              echo "Application is healthy!"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Deployment health check timed out."
+          exit 1
+
       - name: Post-deploy smoke test
-      
-        run: python scripts/smoke_test.py --url http://localhost:8000 --image tests/fixtures/smoke.ppm
+        run: |
+          python -m pip install -r requirements-dev.txt
+          python scripts/smoke_test.py --url http://localhost:8001 --image tests/fixtures/smoke.ppm
