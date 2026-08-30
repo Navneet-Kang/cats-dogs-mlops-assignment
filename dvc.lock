@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 schema: '2.0'
 stages:
   prepare:
@@ -38,3 +39,45 @@ stages:
       hash: md5
       md5: 7600adadf1f9d1416cbf030e3e2f9fc0
       size: 331451
+=======
+schema: '2.0'
+stages:
+  prepare:
+    cmd: python -m src.catsdogs.prepare --params params.yaml
+    deps:
+    - path: data/raw
+      hash: md5
+      md5: 3a5cf86541f22c236620ce5b952ad684.dir
+      size: 848866410
+      nfiles: 24998
+    - path: params.yaml
+      hash: md5
+      md5: ab571cc5820fb00014bc8dcb44854a91
+      size: 414
+    - path: src/catsdogs/data.py
+      hash: md5
+      md5: 190daacd1dc0895ee20f9b5752be82b8
+      size: 2849
+    - path: src/catsdogs/prepare.py
+      hash: md5
+      md5: 979d75c5127910dd22ec441544cb1a28
+      size: 851
+    params:
+      params.yaml:
+        data:
+          source: synthetic-rehearsal
+          raw_dir: data/raw
+          processed_dir: data/processed
+          image_size: 224
+          feature_size: 32
+          seed: 42
+          train_ratio: 0.8
+          val_ratio: 0.1
+          test_ratio: 0.1
+          max_samples_per_class: 5000
+    outs:
+    - path: data/processed/manifest.csv
+      hash: md5
+      md5: 7600adadf1f9d1416cbf030e3e2f9fc0
+      size: 331451
+>>>>>>> 2f6b10b (Version Kaggle dataset and DVC pipeline)

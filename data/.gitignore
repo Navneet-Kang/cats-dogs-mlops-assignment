@@ -3,3 +3,4 @@ processed/
 monitoring/
 !raw.dvc
 
+/raw

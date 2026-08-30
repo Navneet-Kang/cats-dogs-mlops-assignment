@@ -11,3 +11,4 @@ artifacts/*.json
 !artifacts/.gitkeep
 # The compact model is committed so CI can build a runnable image.
 # For a large CNN checkpoint, use DVC/Git-LFS and add a CI pull step.
+.coverage
