@@ -1,6 +1,6 @@
 services:
   api:
-    image: ${IMAGE_NAME:-cats-dogs-api:local}
+    image: ${IMAGE:-ghcr.io/navneet-kang/cats-dogs-api:latest}
     build:
       context: .
     ports:
