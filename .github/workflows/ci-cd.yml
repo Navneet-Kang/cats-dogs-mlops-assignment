@@ -72,16 +72,28 @@ jobs:
           docker compose up -d --remove-orphans
           
       - name: Wait for health
+        shell: powershell
         run: |
-          for i in $(seq 1 30); do
-            if curl -s -f http://localhost:8001/health > /dev/null; then
-              echo "Application is healthy!"
-              exit 0
-            fi
-            sleep 2
-          done
-          echo "Deployment health check timed out."
-          exit 1
+          $healthy = $false
+      
+          for ($i = 1; $i -le 30; $i++) {
+            try {
+              $null = Invoke-RestMethod `
+                -Uri "http://localhost:8001/health" `
+                -TimeoutSec 5
+      
+              $healthy = $true
+              break
+            }
+            catch {
+              Write-Host "Health attempt $i failed"
+              Start-Sleep -Seconds 2
+            }
+          }
+      
+          if (-not $healthy) {
+            throw "Deployment health check failed"
+          }
 
       - name: Post-deploy smoke test
         run: |
