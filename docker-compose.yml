@@ -4,7 +4,7 @@ services:
     build:
       context: .
     ports:
-      - "8000:8000"
+      - "8001:8000"
     environment:
       MODEL_PATH: /app/models/cats_dogs_sgd.joblib
       LOG_LEVEL: INFO
