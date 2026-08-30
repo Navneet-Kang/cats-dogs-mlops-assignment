@@ -68,8 +68,10 @@ jobs:
         env:
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker compose pull
-          docker compose up -d --remove-orphans
+          docker compose pull api
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          docker compose up -d --no-build --remove-orphans
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           
       - name: Wait for health
         shell: powershell
